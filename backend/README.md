@@ -1,40 +1,41 @@
-# Backend Tamakoshi
+﻿# Backend Tamakoshi
 
-API Flask + SQLAlchemy pour le jeu Tamakoshi. Le backend gère les personnages, les logs, les lieux, les actions et le moteur de décision autonome.
+Backend Flask du projet Tamakoshi. Il gere l'API, les modeles SQLAlchemy, le seed des lieux/actions, le moteur de jeu, la decision OpenAI et les logs.
+
+## Fichiers
+
+```text
+backend/
+|-- app.py              # Routes Flask et configuration
+|-- game_engine.py      # Simulation, decision IA, fallback local
+|-- models.py           # Tables SQLAlchemy
+|-- requirements.txt    # Dependances Python
+`-- README.md
+```
+
+## Variables d'environnement
+
+Le backend charge automatiquement `.env` depuis la racine du projet.
+
+```env
+OPENAI_API_KEY=votre_cle_openai
+TAMAKOSHI_DATABASE=sqlite
+```
+
+ou avec MariaDB :
+
+```env
+OPENAI_API_KEY=votre_cle_openai
+DATABASE_URL=mysql+pymysql://tamakoshi_user:password123@localhost/tamakoshi_db
+```
+
+Si `OPENAI_API_KEY` est absente, le moteur utilise un fallback local.
 
 ## Base de donnees
 
-Par defaut, le backend utilise MariaDB avec PyMySQL :
+MariaDB est prevue pour le projet final. SQLite sert au test local.
 
-```text
-mysql+pymysql://tamakoshi_user:password123@localhost/tamakoshi_db
-```
-
-Tu peux remplacer cette configuration avec la variable d'environnement `DATABASE_URL`.
-
-Exemple PowerShell :
-
-```powershell
-$env:DATABASE_URL="mysql+pymysql://tamakoshi_user:password123@localhost/tamakoshi_db"
-python backend/app.py
-```
-
-Pour tester sans MariaDB :
-
-```powershell
-$env:TAMAKOSHI_DATABASE="sqlite"
-python backend/app.py
-```
-
-Pour activer la décision OpenAI :
-
-```powershell
-$env:OPENAI_API_KEY="votre_cle_openai"
-```
-
-La clé ne doit pas être mise directement dans le code. Si elle est absente, le moteur utilise un fallback local.
-
-## Creation MariaDB
+Creation MariaDB :
 
 ```sql
 CREATE DATABASE tamakoshi_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -45,13 +46,13 @@ FLUSH PRIVILEGES;
 
 ## Lancer
 
-Depuis la racine du projet :
+Depuis la racine :
 
 ```powershell
 venv\Scripts\python.exe backend\app.py
 ```
 
-Le frontend est servi par Flask sur :
+URL :
 
 ```text
 http://127.0.0.1:5000

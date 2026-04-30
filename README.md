@@ -1,8 +1,19 @@
-# Tamakoshi V1
+﻿# Tamakoshi V1
 
-Tamakoshi est une simulation autonome inspirée du Tamagotchi. Le joueur crée un personnage avec un nom et un prompt de départ, puis le personnage évolue seul selon ses besoins : faim, énergie, hygiène, mental, loisir, argent et nourriture.
+Tamakoshi est une simulation autonome inspiree du Tamagotchi. Le joueur cree un personnage avec un nom et un prompt de depart. Ensuite, le personnage evolue seul selon ses besoins, son lieu actuel, les actions disponibles et, si une cle est configuree, une decision OpenAI.
 
-L'objectif de cette V1 est de poser une base fonctionnelle avec un frontend connecté à une API Flask, une persistance en base de données, un système de logs et une décision autonome basée sur OpenAI quand une clé API est configurée.
+Le projet contient une interface web, une API Flask, une base SQLAlchemy et un moteur de jeu avec lieux, actions, logs et ticks.
+
+## Fonctionnalites
+
+- Creation de personnages avec un prompt de personnalite.
+- Tableau de bord avec vie, faim, energie, hygiene, mental, loisir, argent et nourriture.
+- Lieux et actions disponibles selon la position du personnage.
+- Decisions autonomes via OpenAI si `OPENAI_API_KEY` est configuree.
+- Fallback local si OpenAI n'est pas disponible.
+- Actions multi-ticks et deplacements entre lieux.
+- Journal des actions en base de donnees.
+- Persistance avec MariaDB ou SQLite local.
 
 ## Architecture
 
@@ -10,127 +21,109 @@ L'objectif de cette V1 est de poser une base fonctionnelle avec un frontend conn
 Navigateur
 -> Frontend statique
 -> API Flask
--> Moteur de décision OpenAI ou fallback local
+-> Moteur de jeu / OpenAI
 -> SQLAlchemy
--> MariaDB ou SQLite local
+-> MariaDB ou SQLite
 ```
 
-MariaDB est la base prévue pour le projet. SQLite sert uniquement à tester facilement en local quand MariaDB n'est pas disponible.
-
-## Structure du projet
+## Structure
 
 ```text
 tamakoshi-v1/
 |-- backend/
-|   |-- app.py              # API Flask et routes
-|   |-- models.py           # Modèles SQLAlchemy
-|   |-- game_engine.py      # Moteur de simulation
-|   |-- requirements.txt    # Dépendances Python
-|   |-- README.md           # Notes backend
-|   `-- tamakoshi.db        # Base SQLite locale, ignorée par Git
+|   |-- app.py              # API Flask, routes, seed des lieux/actions
+|   |-- game_engine.py      # Moteur de simulation et decision OpenAI
+|   |-- models.py           # Modeles SQLAlchemy
+|   |-- requirements.txt    # Dependances backend
+|   `-- README.md           # Documentation backend
 |-- frontend/
-|   |-- index.html          # Interface utilisateur
-|   |-- app.js              # Appels API et logique côté navigateur
-|   `-- styles.css          # Design
+|   |-- index.html          # Interface web
+|   |-- app.js              # Appels API et rendu dynamique
+|   `-- styles.css          # Style de l'interface
 |-- docs/
-|-- .env.example
+|-- .env.example            # Exemple de variables d'environnement
 |-- .gitignore
 `-- README.md
 ```
 
-## Stockage des données
+## Donnees stockees
 
-Les données sont stockées en base via SQLAlchemy.
+Les donnees sont definies dans `backend/models.py`.
 
-Table `characters` :
+### characters
 
-```text
-id
-name
-prompt
-hp
-hunger
-energy
-hygiene
-mental
-entertainment
-money
-food
-is_alive
-death_reason
-feeling
-last_action
-last_update
-created_at
-```
-
-Table `action_logs` :
+Stocke l'etat actuel du personnage.
 
 ```text
-id
-character_id
-action
-message
-created_at
+id, name, prompt, hp, hunger, energy, hygiene, mental, entertainment,
+money, food, is_alive, death_reason, feeling, last_action,
+current_location_id, current_action_id, remaining_ticks,
+last_update, created_at
 ```
 
-Les personnages, leurs statistiques et l'historique des actions sont donc conservés même après un rechargement de la page.
+### locations
 
-Table `locations` :
+Stocke les lieux du monde.
 
 ```text
-id
-nom
-description
-x_coord
-y_coord
+id, nom, description, x_coord, y_coord
 ```
 
-Table `actions` :
+### actions
+
+Stocke les actions possibles et leurs effets.
 
 ```text
-id
-nom
-nb_ticks
-mod_energie
-mod_argent
-mod_hygiene
-mod_mental
-mod_divertissement
-mod_vie
-mod_faim
-mod_stockage
-type_effet
+id, nom, nb_ticks, mod_energie, mod_argent, mod_hygiene,
+mod_mental, mod_divertissement, mod_vie, mod_faim,
+mod_stockage, type_effet
 ```
 
-Table `location_actions` :
+### location_actions
+
+Associe les actions aux lieux ou elles sont disponibles.
 
 ```text
-id
-location_id
-action_id
+id, location_id, action_id
 ```
 
-Ces tables permettent au personnage d'être dans un lieu, de voir les actions disponibles autour de lui, puis de choisir une action ou un déplacement.
+### action_logs
+
+Stocke l'historique des decisions et actions du personnage.
+
+```text
+id, character_id, action, message, created_at
+```
 
 ## Installation
-
-Créer et activer l'environnement virtuel :
 
 ```powershell
 python -m venv venv
 venv\Scripts\Activate.ps1
-```
-
-Installer les dépendances :
-
-```powershell
 pip install -r backend\requirements.txt
 ```
 
-## Configuration MariaDB
+## Configuration
 
-Créer la base et l'utilisateur :
+Copier `.env.example` vers `.env`, puis remplir les variables utiles.
+
+Exemple SQLite local :
+
+```env
+OPENAI_API_KEY=votre_cle_openai
+TAMAKOSHI_DATABASE=sqlite
+```
+
+Exemple MariaDB :
+
+```env
+OPENAI_API_KEY=votre_cle_openai
+DATABASE_URL=mysql+pymysql://tamakoshi_user:password123@localhost/tamakoshi_db
+```
+
+La vraie cle OpenAI doit rester dans `.env`. Elle ne doit jamais etre mise dans `.env.example` ni poussee sur GitHub.
+
+## MariaDB
 
 ```sql
 CREATE DATABASE tamakoshi_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -139,29 +132,15 @@ GRANT ALL PRIVILEGES ON tamakoshi_db.* TO 'tamakoshi_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-Lancer avec MariaDB :
+## Lancer le projet
+
+Depuis la racine :
 
 ```powershell
-$env:DATABASE_URL="mysql+pymysql://tamakoshi_user:password123@localhost/tamakoshi_db"
 venv\Scripts\python.exe backend\app.py
 ```
 
-Activer la décision OpenAI :
-
-```powershell
-$env:OPENAI_API_KEY="votre_cle_openai"
-```
-
-Si `OPENAI_API_KEY` n'est pas définie, le jeu continue avec un fallback local basé sur les besoins du personnage.
-
-Lancer en mode SQLite local :
-
-```powershell
-$env:TAMAKOSHI_DATABASE="sqlite"
-venv\Scripts\python.exe backend\app.py
-```
-
-Application :
+Puis ouvrir :
 
 ```text
 http://127.0.0.1:5000
@@ -182,7 +161,6 @@ POST   /api/characters/<id>/tick
 POST   /api/characters/<id>/ticks
 ```
 
+## Notes de rendu
 
-### Notes
-
-Le projet est maintenant lançable depuis la racine avec `backend/app.py`. Le frontend est servi par Flask et communique avec l'API via `/api`. Les données sont stockées soit dans MariaDB, soit dans `backend/tamakoshi.db` en mode SQLite local.
+Le projet final contient le backend, le frontend, la connexion a la base de donnees, l'integration OpenAI, les lieux, les actions, les logs et une documentation de lancement. Si OpenAI n'est pas configure, le jeu reste utilisable grace au fallback local.
