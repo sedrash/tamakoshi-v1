@@ -1,6 +1,6 @@
 # Backend Tamakoshi
 
-API Flask + SQLAlchemy pour le jeu Tamakoshi.
+API Flask + SQLAlchemy pour le jeu Tamakoshi. Le backend gère les personnages, les logs, les lieux, les actions et le moteur de décision autonome.
 
 ## Base de donnees
 
@@ -25,6 +25,14 @@ Pour tester sans MariaDB :
 $env:TAMAKOSHI_DATABASE="sqlite"
 python backend/app.py
 ```
+
+Pour activer la décision OpenAI :
+
+```powershell
+$env:OPENAI_API_KEY="votre_cle_openai"
+```
+
+La clé ne doit pas être mise directement dans le code. Si elle est absente, le moteur utilise un fallback local.
 
 ## Creation MariaDB
 

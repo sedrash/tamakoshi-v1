@@ -25,11 +25,13 @@ const els = {
   logsButton: document.querySelector("#logsButton"),
   petVisual: document.querySelector("#petVisual"),
   lifeBadge: document.querySelector("#lifeBadge"),
+  situationTitle: document.querySelector("#situationTitle"),
   feelingText: document.querySelector("#feelingText"),
   lastActionText: document.querySelector("#lastActionText"),
   moneyValue: document.querySelector("#moneyValue"),
   foodValue: document.querySelector("#foodValue"),
   ticksValue: document.querySelector("#ticksValue"),
+  locationValue: document.querySelector("#locationValue"),
   updatedAt: document.querySelector("#updatedAt"),
   statsGrid: document.querySelector("#statsGrid"),
   logList: document.querySelector("#logList"),
@@ -188,6 +190,7 @@ function renderCharacter(character) {
 
   els.characterName.textContent = character.name;
   els.characterPrompt.textContent = character.prompt;
+  els.situationTitle.textContent = character.situationTitle || situationTitle(character);
   els.feelingText.textContent = character.feeling || "Je vais bien.";
   els.lastActionText.textContent = `Derniere action: ${character.lastAction || "spawn"}`;
   els.moneyValue.textContent = character.money;
@@ -195,6 +198,7 @@ function renderCharacter(character) {
   els.ticksValue.textContent = character.currentAction
     ? `${character.currentAction} (${character.actionTicksLeft})`
     : "Libre";
+  els.locationValue.textContent = character.currentLocation || "-";
   els.updatedAt.textContent = character.lastUpdate ? `Maj ${formatDate(character.lastUpdate)}` : "";
 
   els.lifeBadge.textContent = character.isAlive ? "Vivant" : "Mort";
@@ -212,6 +216,30 @@ function renderCharacter(character) {
 
   renderStats(character);
   renderCharacters();
+}
+
+function situationTitle(character) {
+  if (!character.isAlive) {
+    return character.deathReason || "Personnage mort";
+  }
+
+  const criticalStats = [
+    ["faim", character.hunger],
+    ["energie", character.energy],
+    ["hygiene", character.hygiene],
+    ["mental", character.mental],
+    ["loisir", character.entertainment],
+  ].filter(([, value]) => Number(value) <= 25);
+
+  if (criticalStats.length > 0) {
+    return `Priorite: ${criticalStats.map(([label]) => label).join(", ")}`;
+  }
+
+  if (character.currentAction) {
+    return `${character.currentAction} en cours`;
+  }
+
+  return `${character.currentLocation || "Lieu inconnu"} - situation stable`;
 }
 
 function renderLogs(logs) {

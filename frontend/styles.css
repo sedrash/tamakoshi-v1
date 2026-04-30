@@ -360,9 +360,9 @@ textarea:focus {
 
 .status-band {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(260px, 380px);
-  align-items: center;
-  gap: 20px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 22px;
   padding: 22px;
 }
 
@@ -398,14 +398,53 @@ textarea:focus {
   background: linear-gradient(145deg, #bbb7af, #716e69);
 }
 
+.status-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+  gap: 14px 18px;
+  align-items: start;
+}
+
+.status-copy .badge {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
 .status-copy h3 {
-  margin: 9px 0 6px;
-  font-size: 22px;
+  margin: 0;
+  font-size: 24px;
   overflow-wrap: anywhere;
 }
 
 .status-copy p {
   margin: 0;
+}
+
+.thought-box {
+  grid-row: span 2;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.thought-box span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.thought-box p {
+  display: -webkit-box;
+  max-height: 94px;
+  overflow: hidden;
+  color: #37413e;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
 }
 
 .badge {
@@ -426,8 +465,9 @@ textarea:focus {
 }
 
 .resource-strip {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -450,8 +490,10 @@ textarea:focus {
 .resource-strip strong {
   display: block;
   margin-top: 4px;
-  font-size: 22px;
-  overflow-wrap: anywhere;
+  font-size: 21px;
+  line-height: 1.1;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .content-grid {
@@ -608,8 +650,16 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .status-copy {
+    grid-template-columns: 1fr;
+  }
+
+  .thought-box {
+    grid-row: auto;
+  }
+
   .resource-strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .actions-list {
@@ -744,6 +794,10 @@ textarea:focus {
     padding: 14px;
   }
 
+  .status-copy {
+    grid-template-columns: 1fr;
+  }
+
   .status-band .pet-visual {
     width: 72px;
     height: 72px;
@@ -752,6 +806,16 @@ textarea:focus {
 
   .status-copy h3 {
     font-size: 18px;
+  }
+
+  .thought-box {
+    grid-column: 1 / -1;
+    padding: 10px 12px;
+  }
+
+  .thought-box p {
+    max-height: 80px;
+    -webkit-line-clamp: 3;
   }
 
   .resource-strip {
