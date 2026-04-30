@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+*.db
+.env
+instance/
+.vscode/
+.idea/
+.git-backup-backend/
+flask.*.log

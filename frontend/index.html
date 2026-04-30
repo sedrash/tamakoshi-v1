@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tamakoshi</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span>
+          </div>
+          <div>
+            <h1>Tamakoshi</h1>
+            <p id="apiStatus">Connexion...</p>
+          </div>
+        </div>
+
+        <form id="createForm" class="create-form">
+          <label for="nameInput">Nom</label>
+          <input id="nameInput" name="name" type="text" maxlength="100" required placeholder="Lina" />
+
+          <label for="promptInput">Prompt</label>
+          <textarea
+            id="promptInput"
+            name="prompt"
+            rows="5"
+            required
+            placeholder="Personnage prudent, curieux, determine a survivre."
+          ></textarea>
+
+          <button class="primary-button" type="submit">
+            <span aria-hidden="true">+</span>
+            Creer
+          </button>
+        </form>
+
+        <div class="section-heading">
+          <h2>Personnages</h2>
+          <button id="refreshButton" class="icon-button" type="button" title="Rafraichir">
+            <span aria-hidden="true">R</span>
+          </button>
+        </div>
+        <div id="characterList" class="character-list"></div>
+      </aside>
+
+      <main class="main-panel">
+        <section id="emptyState" class="empty-state">
+          <div class="pet-visual idle" aria-hidden="true">
+            <div class="pet-face">
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <h2>Aucun personnage selectionne</h2>
+          <p>Cree un personnage ou selectionne-en un dans la liste.</p>
+        </section>
+
+        <section id="dashboard" class="dashboard hidden">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Survie autonome</p>
+              <h2 id="characterName">Personnage</h2>
+              <p id="characterPrompt" class="prompt"></p>
+            </div>
+            <div class="topbar-actions">
+              <button id="tickButton" class="primary-button" type="button">
+                <span aria-hidden="true">&gt;</span>
+                Tick
+              </button>
+              <button id="multiTickButton" class="secondary-button" type="button">
+                <span aria-hidden="true">&gt;&gt;</span>
+                x10
+              </button>
+              <button id="deleteButton" class="danger-button" type="button">
+                <span aria-hidden="true">x</span>
+                Supprimer
+              </button>
+            </div>
+          </header>
+
+          <div class="status-band">
+            <div id="petVisual" class="pet-visual" aria-hidden="true">
+              <div class="pet-face">
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <div class="status-copy">
+              <span id="lifeBadge" class="badge">Vivant</span>
+              <h3 id="feelingText">Je vais bien.</h3>
+              <p id="lastActionText">Derniere action: spawn</p>
+            </div>
+            <div class="resource-strip">
+              <div>
+                <span>Argent</span>
+                <strong id="moneyValue">0</strong>
+              </div>
+              <div>
+                <span>Nourriture</span>
+                <strong id="foodValue">0</strong>
+              </div>
+              <div>
+                <span>Action</span>
+                <strong id="ticksValue">0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-grid">
+            <section class="stats-panel">
+              <div class="section-heading">
+                <h3>Etat</h3>
+                <span id="updatedAt" class="muted"></span>
+              </div>
+              <div id="statsGrid" class="stats-grid"></div>
+            </section>
+
+            <section class="activity-panel">
+              <div class="section-heading">
+                <h3>Journal</h3>
+                <button id="logsButton" class="icon-button" type="button" title="Recharger le journal">
+                  <span aria-hidden="true">R</span>
+                </button>
+              </div>
+              <ol id="logList" class="log-list"></ol>
+            </section>
+          </div>
+
+          <section class="actions-panel">
+            <div class="section-heading">
+              <h3>Actions connues</h3>
+            </div>
+            <div id="actionsList" class="actions-list"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

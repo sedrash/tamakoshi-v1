@@ -17,6 +17,8 @@ class Character(db.Model):
     hunger = db.Column(db.Integer, default=80)
     energy = db.Column(db.Integer, default=80)
     hygiene = db.Column(db.Integer, default=80)
+    mental = db.Column(db.Integer, default=80)
+    entertainment = db.Column(db.Integer, default=80)
 
     money = db.Column(db.Integer, default=20)
     food = db.Column(db.Integer, default=1)
@@ -30,7 +32,7 @@ class Character(db.Model):
     last_update = db.Column(db.DateTime, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    logs = db.relationship("ActionLog", backref="character", lazy=True)
+    logs = db.relationship("ActionLog", backref="character", cascade="all, delete-orphan", lazy=True)
 
 
 class ActionLog(db.Model):

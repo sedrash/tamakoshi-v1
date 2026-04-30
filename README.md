@@ -1,294 +1,142 @@
 # Tamakoshi V1
 
-## Description du projet
+Tamakoshi est une simulation autonome inspirée du Tamagotchi. Le joueur crée un personnage avec un nom et un prompt de départ, puis le personnage évolue seul selon ses besoins : faim, énergie, hygiène, mental, loisir, argent et nourriture.
 
-Tamakoshi est un jeu de simulation autonome inspiré du Tamagotchi.
+L'objectif de cette V1 est de poser une base fonctionnelle avec un frontend connecté à une API Flask, une persistance en base de données et un système de logs pour suivre l'évolution du personnage.
 
-Le joueur crée un personnage avec un prompt initial qui définit sa personnalité et sa situation de départ.
-
-Ensuite, le joueur n’intervient plus directement.
-
-Le personnage vit seul et prend ses propres décisions selon ses besoins.
-
-Le frontend sert uniquement à observer l’état du personnage.
-
-Le backend gère :
-
-* les statistiques du personnage
-* la logique métier de base
-* les actions automatiques
-* la sauvegarde en base de données
-* l’historique des actions
-
-L’objectif du jeu est simple :
-
-**survivre le plus longtemps possible**
-
-Il n’y a pas de victoire, seulement la survie.
-
----
-
-## Architecture du projet
+## Architecture
 
 ```text
-Frontend
-↓
-API Flask
-↓
-MariaDB (Base de données)
-↓
-Logique métier / Actions automatiques
+Navigateur
+-> Frontend statique
+-> API Flask
+-> SQLAlchemy
+-> MariaDB ou SQLite local
 ```
 
-Le projet contient :
-
-* un backend Flask
-* une base de données MariaDB
-* une logique métier pour les actions du personnage
-* un système de logs pour suivre les décisions
-* une structure prête pour accueillir le frontend
-
----
+MariaDB est la base prévue pour le projet. SQLite sert uniquement à tester facilement en local quand MariaDB n'est pas disponible.
 
 ## Structure du projet
 
 ```text
 tamakoshi-v1/
-│
-├── backend/
-│   ├── app.py
-│   ├── models.py
-│   ├── game_engine.py
-│   ├── requirements.txt
-│   └── README.md
-│
-├── frontend/
-│   └── (à compléter)
-│
-├── docs/
-│   └── (diagrammes / documentation)
-│
-├── .gitignore
-│
-└── venv/ (non push)
+|-- backend/
+|   |-- app.py              # API Flask et routes
+|   |-- models.py           # Modèles SQLAlchemy
+|   |-- game_engine.py      # Moteur de simulation
+|   |-- requirements.txt    # Dépendances Python
+|   |-- README.md           # Notes backend
+|   `-- tamakoshi.db        # Base SQLite locale, ignorée par Git
+|-- frontend/
+|   |-- index.html          # Interface utilisateur
+|   |-- app.js              # Appels API et logique côté navigateur
+|   `-- styles.css          # Design
+|-- docs/
+|-- .env.example
+|-- .gitignore
+`-- README.md
 ```
 
----
+## Stockage des données
 
-## Base de données
+Les données sont stockées en base via SQLAlchemy.
 
-### Table : characters
+Table `characters` :
 
-Cette table stocke l’état actuel du personnage.
+```text
+id
+name
+prompt
+hp
+hunger
+energy
+hygiene
+mental
+entertainment
+money
+food
+is_alive
+death_reason
+feeling
+last_action
+last_update
+created_at
+```
 
-### Champs principaux :
+Table `action_logs` :
 
-* id
-* name
-* prompt
-* hp
-* hunger
-* energy
-* hygiene
-* money
-* food
-* is_alive
-* death_reason
-* feeling
-* last_action
-* last_update
-* created_at
+```text
+id
+character_id
+action
+message
+created_at
+```
 
-Exemples :
-
-* faim
-* énergie
-* argent
-* nourriture
-* hygiène
-
-Le champ `last_update` permet de gérer l’évolution du personnage dans le temps.
-
----
-
-### Table : action_logs
-
-Cette table stocke l’historique des actions du personnage.
-
-### Champs principaux :
-
-* id
-* character_id
-* action
-* message
-* created_at
-
-Exemples :
-
-* Lina a mangé
-* Lina a travaillé
-* Lina a dormi
-
-Cela permet de suivre toutes les décisions automatiques.
-
----
-
-## API Endpoints
-
-| Method | Endpoint               | Description                    |
-| ------ | ---------------------- | ------------------------------ |
-| GET    | /                      | Test serveur                   |
-| POST   | /characters            | Créer un personnage            |
-| GET    | /characters            | Voir tous les personnages      |
-| GET    | /characters/:id        | Voir un personnage             |
-| GET    | /characters/:id/logs   | Voir les 10 derniers logs      |
-| GET    | /characters/:id/status | Voir le statut rapide          |
-| POST   | /characters/:id/tick   | Forcer une simulation manuelle |
-
----
-
-## Technologies utilisées
-
-* Python
-* Flask
-* Flask-SQLAlchemy
-* MariaDB
-* PyMySQL
-* Thunder Client
-* DBeaver
-* VS Code
-
----
+Les personnages, leurs statistiques et l'historique des actions sont donc conservés même après un rechargement de la page.
 
 ## Installation
 
-### 1. Cloner le projet
+Créer et activer l'environnement virtuel :
 
-```bash
-git clone https://github.com/sedrash/tamakoshi-v1.git
-cd tamakoshi-v1
-```
-
----
-
-### 2. Créer l’environnement virtuel
-
-```bash
+```powershell
 python -m venv venv
+venv\Scripts\Activate.ps1
 ```
 
----
+Installer les dépendances :
 
-### 3. Activer l’environnement virtuel
-
-### Windows PowerShell
-
-```bash
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\venv\Scripts\Activate.ps1
+```powershell
+pip install -r backend\requirements.txt
 ```
 
-### Windows CMD
+## Configuration MariaDB
 
-```bash
-venv\Scripts\activate.bat
-```
-
----
-
-### 4. Installer les dépendances
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
----
-
-### 5. Configurer MariaDB
-
-Créer la base :
+Créer la base et l'utilisateur :
 
 ```sql
-CREATE DATABASE tamakoshi_db;
-```
-
-Créer l’utilisateur :
-
-```sql
+CREATE DATABASE tamakoshi_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'tamakoshi_user'@'localhost' IDENTIFIED BY 'password123';
 GRANT ALL PRIVILEGES ON tamakoshi_db.* TO 'tamakoshi_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
----
+Lancer avec MariaDB :
 
-### 6. Lancer le backend
-
-```bash
-python app.py
+```powershell
+$env:DATABASE_URL="mysql+pymysql://tamakoshi_user:password123@localhost/tamakoshi_db"
+venv\Scripts\python.exe backend\app.py
 ```
 
-Le serveur sera disponible sur :
+Lancer en mode SQLite local :
+
+```powershell
+$env:TAMAKOSHI_DATABASE="sqlite"
+venv\Scripts\python.exe backend\app.py
+```
+
+Application :
 
 ```text
 http://127.0.0.1:5000
 ```
 
----
+## API
 
-## Tests API
-
-Les tests peuvent être réalisés avec :
-
-* Thunder Client
-* Postman
-* navigateur pour les GET simples
-
-Exemple :
-
-### Création d’un personnage
-
-```http
-POST /characters
+```text
+GET    /api/health
+GET    /api/actions
+POST   /api/characters
+GET    /api/characters
+GET    /api/characters/<id>
+DELETE /api/characters/<id>
+GET    /api/characters/<id>/logs
+GET    /api/characters/<id>/status
+POST   /api/characters/<id>/tick
+POST   /api/characters/<id>/ticks
 ```
 
-Body JSON :
 
-```json
-{
-  "name": "Lina",
-  "prompt": "Lina est prudente et veut survivre longtemps."
-}
-```
+### Notes
 
----
-
-## Mon rôle dans le projet
-
-Je me suis occupé principalement de la partie backend.
-
-Mon travail :
-
-* création de l’API Flask
-* connexion avec MariaDB
-* structure de la base de données
-* endpoints REST
-* persistance des personnages
-* système de logs
-* préparation de la logique métier
-
-Le moteur de simulation complet sera amélioré avec le reste de l’équipe dans les prochaines versions.
-
----
-
-## Objectif de la V1
-
-Cette première version permet de valider :
-
-* l’architecture backend
-* la communication API ↔ BDD
-* la persistance des données
-* la structure des actions automatiques
-
-Cette base servira pour la suite du développement du projet.
+Le projet est maintenant lançable depuis la racine avec `backend/app.py`. Le frontend est servi par Flask et communique avec l'API via `/api`. Les données sont stockées soit dans MariaDB, soit dans `backend/tamakoshi.db` en mode SQLite local.

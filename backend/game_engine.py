@@ -1,5 +1,9 @@
 from datetime import datetime
-from models import db, ActionLog
+
+try:
+    from .models import ActionLog, db
+except ImportError:
+    from models import ActionLog, db
 
 
 # -------------------------
@@ -21,10 +25,14 @@ def decrease_needs(character, hours_passed):
     hunger_loss = int(10 * hours_passed)
     energy_loss = int(5 * hours_passed)
     hygiene_loss = int(3 * hours_passed)
+    mental_loss = int(2 * hours_passed)
+    entertainment_loss = int(2 * hours_passed)
 
     character.hunger = max(character.hunger - hunger_loss, 0)
     character.energy = max(character.energy - energy_loss, 0)
     character.hygiene = max(character.hygiene - hygiene_loss, 0)
+    character.mental = max(character.mental - mental_loss, 0)
+    character.entertainment = max(character.entertainment - entertainment_loss, 0)
 
 
 # -------------------------
@@ -68,6 +76,9 @@ def choose_action(character):
     if character.energy <= 40:
         return "sleep", "energy_low"
 
+    if character.mental <= 20 or character.entertainment <= 20:
+        return "rest", "morale_low"
+
     return "idle", "no_urgent_need"
 
 
@@ -104,6 +115,8 @@ def apply_action(character, action):
         character.energy = max(character.energy - 20, 0)
         character.hunger = max(character.hunger - 15, 0)
         character.hygiene = max(character.hygiene - 10, 0)
+        character.mental = max(character.mental - 8, 0)
+        character.entertainment = max(character.entertainment - 8, 0)
 
         return "work", f"{character.name} a travaillé pour gagner de l’argent."
 
@@ -123,8 +136,17 @@ def apply_action(character, action):
 
         return "wash", f"{character.name} s’est lavé pour améliorer son hygiène."
 
+    if action == "rest":
+        character.mental = min(character.mental + 25, 100)
+        character.entertainment = min(character.entertainment + 25, 100)
+        character.energy = min(character.energy + 10, 100)
+        character.hunger = max(character.hunger - 5, 0)
+
+        return "rest", f"{character.name} a pris du temps pour se reposer."
+
     character.hunger = max(character.hunger - 2, 0)
     character.energy = max(character.energy - 1, 0)
+    character.entertainment = max(character.entertainment - 1, 0)
 
     return "idle", f"{character.name} attend et continue sa journée."
 
@@ -149,6 +171,9 @@ def check_death(character):
     if character.hygiene <= 0:
         character.hp = max(character.hp - 1, 0)
 
+    if character.mental <= 0:
+        character.hp = max(character.hp - 1, 0)
+
     if character.hp <= 0:
         character.is_alive = False
 
@@ -158,6 +183,8 @@ def check_death(character):
             character.death_reason = "mort d’épuisement"
         elif character.hygiene <= 0:
             character.death_reason = "mort à cause du manque d’hygiène"
+        elif character.mental <= 0:
+            character.death_reason = "mort à cause d’un effondrement mental"
         else:
             character.death_reason = "mort inconnue"
 
@@ -179,6 +206,10 @@ def generate_feeling(character):
         return "Je suis épuisé..."
     if character.hygiene <= 20:
         return "Je ne me sens vraiment pas propre..."
+    if character.mental <= 20:
+        return "Je ne me sens pas bien mentalement..."
+    if character.entertainment <= 20:
+        return "Je m’ennuie beaucoup..."
 
     if character.food == 0:
         return "Je n’ai plus rien à manger..."
